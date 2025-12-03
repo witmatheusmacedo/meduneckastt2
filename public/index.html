@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css">
+
+  <!-- SEO básico -->
+  <title>Golfinho Inteligente — Aplicativo sobre Golfinhos</title>
+  <meta name="description" content="Descubra curiosidades, fatos científicos e orientações de cuidado ao encontrar golfinhos, com chatbot e recursos interativos." />
+
+  <!-- Tema específico para golfinhos -->
+  <style>
+    body.tema-golfinhos{
+      background:
+        radial-gradient(1200px 800px at 10% -10%, rgba(0,224,199,.18), transparent 60%),
+        radial-gradient(1200px 800px at 100% 110%, rgba(0,119,255,.20), transparent 60%),
+        linear-gradient(180deg, #021827, #033853 45%, #045f7a 100%);
+    }
+    .hero-tag{
+      display:inline-flex;
+      align-items:center;
+      gap:.4rem;
+      font-size:.9rem;
+      padding:.25rem .6rem;
+      border-radius:999px;
+      background:rgba(0,0,0,.35);
+      color:var(--muted);
+      border:1px solid rgba(255,255,255,.18);
+    }
+    .hero-tag span{
+      font-size:1rem;
+    }
+    .steps-list{
+      counter-reset: step;
+      display:grid;
+      gap:.8rem;
+      margin-top:1rem;
+      padding:0;
+      list-style:none;
+    }
+    .steps-list li{
+      position:relative;
+      padding:.9rem 1rem .9rem 2.4rem;
+      background:var(--card);
+      border-radius:.9rem;
+      box-shadow:var(--shadow);
+    }
+    .steps-list li::before{
+      counter-increment: step;
+      content: counter(step);
+      position:absolute;
+      left:.9rem;
+      top:50%;
+      transform:translateY(-50%);
+      width:1.4rem;
+      height:1.4rem;
+      border-radius:50%;
+      background:linear-gradient(180deg, var(--accent), var(--accent-2));
+      color:#00121c;
+      font-size:.9rem;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:700;
+      box-shadow:0 0 10px rgba(0,0,0,.25);
+    }
+  </style>
+
+  <!-- Bibliotecas -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.8.0/dist/tf.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+</head>
+
+<body class="tema-golfinhos">
+  <div id="topo"></div>
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <header role="banner">
+    <div class="wrap">
+      <nav aria-label="Navegação principal">
+        <div class="brand" aria-label="Marca da página">
+          <span aria-hidden="true"></span>
+          <strong>Golfinho Inteligente</strong>
+        </div>
+
+        <div class="nav-links" role="navigation">
+          <a href="#curiosidades">Curiosidades</a>
+          <a href="#fatos">Fatos</a>
+          <a href="#encontro">E se eu encontrar um?</a>
+          <a href="#galeria">Galeria</a>
+          <a href="#faq">FAQ</a>
+        </div>
+
+        <div class="controls">
+          <button id="toggleTheme" class="btn ghost" aria-pressed="false" aria-label="Alternar modo claro e escuro">🌙</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo" class="wrap" role="main">
+    <!-- HERO -->
+    <section class="hero fade-in" aria-labelledby="titulo-hero">
+      <div>
+        <p class="hero-tag"><span>🐬</span> Tema especial · Golfinhos</p>
+        <h1 id="titulo-hero">Golfinho Inteligente</h1>
+        <h2>Um aplicativo para entender, respeitar e proteger os golfinhos.</h2>
+        <p>
+          O Golfinho Inteligente é um site que aproxima as pessoas do mundo marinho, mostrando
+          como os golfinhos vivem, se comunicam, caçam e se relacionam em grupo. Além disso,
+          traz um chatbot interativo e recursos de reconhecimento facial para explorar emoções
+          humanas enquanto aprendemos sobre empatia e preservação dos oceanos.
+        </p>
+
+        <!-- Mini cards no hero -->
+        <div class="cards" role="list" style="margin-top:1rem;">
+          <article class="card" role="listitem">
+            <h3>Altíssima inteligência</h3>
+            <p>Entre os animais mais inteligentes do planeta, com resolução de problemas e cooperação em grupo.</p>
+          </article>
+          <article class="card" role="listitem">
+            <h3>Comunicação avançada</h3>
+            <p>Assobios, cliques e sons específicos que funcionam como “nomes” e sinais de grupo.</p>
+          </article>
+          <article class="card" role="listitem">
+            <h3>Conexão com o ser humano</h3>
+            <p>Interagem com pessoas, mas precisam ser observados com respeito e distância segura.</p>
+          </article>
+        </div>
+
+        <div class="actions" role="group" aria-label="Ações principais">
+          <!-- Botão obrigatório: Reconhecimento Facial -->
+          <button id="abrirIA" class="btn" aria-label="Iniciar reconhecimento facial">
+            Reconhecimento Facial
+          </button>
+        </div>
+      </div>
+
+      <div class="imgwrap" aria-hidden="false">
+        <img src="https://midias.agazeta.com.br/2021/05/31/1920x1080/golfinho-nariz-de-garrafa-tursiops-truncatus-pode-ser-visto-ao-longo-de-todo-o-ano-no-litoral-do-espirito-santo-524837.jpg"
+             alt="Golfinho nadando próximo à superfície em mar azul" />
+      </div>
+    </section>
+
+    <!-- CURIOSIDADES -->
+    <section id="curiosidades" aria-labelledby="titulo-curiosidades" class="fade-in">
+      <header>
+        <h2 id="titulo-curiosidades">Curiosidades</h2>
+        <p>Descobertas rápidas sobre o mundo dos golfinhos.</p>
+      </header>
+      <ul class="facts-list" role="list">
+        <li><div class="text">
+          Golfinhos estão entre os animais mais inteligentes do mundo. Eles conseguem resolver
+          problemas, usar objetos como ferramentas, trabalhar em equipe e aprender comandos complexos.
+        </div></li>
+        <li><div class="text">
+          Eles dormem de um jeito diferente: apenas uma parte do cérebro descansa por vez, enquanto
+          a outra continua ativa para respirar, nadar e se proteger de predadores.
+        </div></li>
+        <li><div class="text">
+          Por serem mamíferos, os golfinhos respiram ar pela superfície, usando o <strong>espiráculo</strong>,
+          uma espécie de “nariz” localizado no topo da cabeça.
+        </div></li>
+        <li><div class="text">
+          A pele dos golfinhos é delicada e se regenera rapidamente. Alguns pesquisadores acreditam
+          que eles podem usar corais para ajudar a manter a saúde da pele.
+        </div></li>
+        <li><div class="text">
+          Eles vivem em grupos com organização social complexa, têm laços fortes, brincam, cooperam
+          na caça e parecem até dar “nomes” uns aos outros com assobios específicos.
+        </div></li>
+      </ul>
+    </section>
+
+    <!-- FATOS/CIÊNCIA -->
+    <section id="fatos" aria-labelledby="titulo-fatos" class="fade-in">
+      <header>
+        <h2 id="titulo-fatos">Fatos e Ciência</h2>
+        <p>Três pontos científicos para entender melhor esses mamíferos marinhos.</p>
+      </header>
+      <div class="cards" role="list">
+        <article class="card" aria-label="Fato científico 1" role="listitem">
+          <h3>Comunicação complexa</h3>
+          <p>
+            Golfinhos usam cliques, assobios e sons variados para se comunicar. Alguns estudos
+            indicam que cada indivíduo pode ter um “assobio assinatura”, parecido com um nome próprio.
+          </p>
+        </article>
+
+        <article class="card" aria-label="Fato científico 2" role="listitem">
+          <h3>Adaptações para o mar</h3>
+          <p>
+            Eles precisam subir para respirar pelo espiráculo, têm sono em “meio cérebro” e
+            dois estômagos: um para armazenar a comida e outro para digerir, aproveitando melhor a energia.
+          </p>
+        </article>
+
+        <article class="card" aria-label="Fato científico 3" role="listitem">
+          <h3>Força e agilidade</h3>
+          <p>
+            Podem nadar em alta velocidade, saltar mais de 6 metros para fora da água e usar o corpo
+            aerodinâmico para manobras rápidas durante a caça ou brincadeiras.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ENCONTREI UM GOLFINHO, E AGORA? -->
+    <section id="encontro" aria-labelledby="titulo-encontro" class="fade-in">
+      <header>
+        <h2 id="titulo-encontro">Encontrei um golfinho, e agora?</h2>
+        <p>Passo a passo para observar com segurança e respeito.</p>
+      </header>
+
+      <ul class="steps-list">
+        <li>
+          <strong>Mantenha distância segura.</strong>
+          <br>Observe de longe, sem tentar tocar ou perseguir o animal.
+        </li>
+        <li>
+          <strong>Não ofereça comida.</strong>
+          <br>Alimentar golfinhos pode mudar o comportamento deles e prejudicar a saúde.
+        </li>
+        <li>
+          <strong>Evite barulho e movimentos bruscos.</strong>
+          <br>Desligue som alto e não jogue objetos na água.
+        </li>
+        <li>
+          <strong>Respeite o grupo.</strong>
+          <br>Se houver filhotes, mantenha ainda mais distância para não causar estresse.
+        </li>
+        <li>
+          <strong>Procure ajuda em caso de risco.</strong>
+          <br>Se o animal parecer ferido ou encalhado, entre em contato com órgãos ambientais da região.
+        </li>
+      </ul>
+    </section>
+
+    <!-- GALERIA -->
+    <section id="galeria" aria-labelledby="titulo-galeria" class="fade-in">
+      <header>
+        <h2 id="titulo-galeria">Galeria</h2>
+        <p>Imagens de golfinhos com pequenas legendas.</p>
+      </header>
+
+      <div class="gallery" role="list">
+        <figure role="listitem">
+          <img src="https://anda.jor.br/_next/image?url=https%3A%2F%2Fimages.anda.jor.br%2Fuploads%2F2022%2F09%2Funknown-19.jpeg&w=3840&q=75"
+               alt="Golfinho saltando para fora da água" />
+          <figcaption>Golfinhos podem nadar e saltar em alta velocidade.</figcaption>
+        </figure>
+
+        <figure role="listitem">
+          <img src="data:image/jpeg;base64,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"
+               alt="Golfinho nadando em grupo" />
+          <figcaption>Golfinhos usam a inteligência para cooperar em grupo.</figcaption>
+        </figure>
+
+        <figure role="listitem">
+          <img src="https://meusanimais.com.br/wp-content/uploads/2021/03/golfinho-rosto-fora-agua.jpg"
+               alt="Golfinho colocando a cabeça para fora da água" />
+          <figcaption>Assobios e sons ajudam na comunicação entre indivíduos.</figcaption>
+        </figure>
+
+        <figure role="listitem">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-_kv4W3OJjiTi8MJOg5ff-jEEK9UrNp2cXg&s"
+               alt="Golfinho emergindo na superfície do mar" />
+          <figcaption>Durante o sono, apenas metade do cérebro descansa.</figcaption>
+        </figure>
+
+        <figure role="listitem">
+          <img src="data:image/jpeg;base64,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"
+               alt="Golfinhos nadando em grupo no mar" />
+          <figcaption>Golfinhos vivem em grupos sociais complexos.</figcaption>
+        </figure>
+
+        <figure role="listitem">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0QIXvZTeh16bATpkNOCa7axE-vy45f3MKjQ&s"
+               alt="Golfinho aproximando o rosto de pedras no fundo do mar" />
+          <figcaption>Alguns golfinhos usam esponjas como “ferramentas” para proteger o focinho.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" aria-labelledby="titulo-faq" class="fade-in">
+      <header>
+        <h2 id="titulo-faq">Perguntas sobre os Golfinhos</h2>
+        <p>Perguntas e respostas para ir além do básico.</p>
+      </header>
+
+      <div class="faq">
+        <details>
+          <summary>Como os golfinhos se orientam em mar aberto sem mapas ou referências visuais?</summary>
+          <p>
+            Eles usam principalmente a ecolocalização (um tipo de sonar natural) e, segundo estudos,
+            podem perceber também o campo magnético da Terra. Assim, conseguem se orientar e migrar
+            por longas distâncias mesmo em águas profundas.
+          </p>
+        </details>
+        <details>
+          <summary>Os sons e assobios dos golfinhos formam uma “linguagem” de verdade?</summary>
+          <p>
+            Ainda não existe consenso total, mas já se sabe que os sons carregam informações
+            importantes, como identidade, alerta, chamadas de grupo e até “nomes” individuais.
+            Pesquisadores investigam se existe algo parecido com uma gramática.
+          </p>
+        </details>
+        <details>
+          <summary>Que adaptações genéticas ajudam os golfinhos a viver no mar?</summary>
+          <p>
+            Ao longo da evolução, vários genes ligados à vida terrestre foram modificados ou
+            perderam função, enquanto outros se adaptaram para respiração, nado, controle de
+            temperatura e percepção em ambiente aquático.
+          </p>
+        </details>
+        <details>
+          <summary>Como funciona a ecolocalização na prática?</summary>
+          <p>
+            O golfinho emite cliques sonoros que batem nos objetos e voltam em forma de eco.
+            Interpretando esses ecos, ele consegue entender distância, tamanho, formato e até
+            a textura aproximada do que está à frente.
+          </p>
+        </details>
+        <details>
+          <summary>O cérebro dos golfinhos é comparável ao dos humanos?</summary>
+          <p>
+            O cérebro dos golfinhos é grande e complexo, com áreas ligadas à comunicação e
+            interação social muito desenvolvidas. Eles são extremamente inteligentes, mas o
+            tipo de inteligência é diferente da humana, mais voltada à vida no mar e à vida em grupo.
+          </p>
+        </details>
+      </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section id="cta-final" aria-labelledby="titulo-cta" class="fade-in">
+      <header>
+        <h2 id="titulo-cta">Continue explorando</h2>
+        <p>Escolha um caminho para aprender ainda mais sobre golfinhos.</p>
+      </header>
+      <div class="cta" role="group" aria-label="Call to Action">
+        <a href="#fatos">Aprender mais</a>
+        <a href="#galeria">Ver imagens</a>
+        <a href="#creditos">Baixar material &amp; fontes</a>
+      </div>
+    </section>
+
+    <!-- CRÉDITOS/FONTES -->
+    <section id="creditos" aria-labelledby="titulo-creditos" class="fade-in">
+      <header>
+        <h2 id="titulo-creditos">Créditos e Fontes</h2>
+        <p>Referências utilizadas neste projeto.</p>
+      </header>
+      <article>
+        <p>[[FONTES_REFERENCIAS]]</p>
+      </article>
+    </section>
+  </main>
+
+  <!-- Painel do Chatbot (Aside fixo) -->
+  <aside id="chatPane" role="complementary" aria-label="Painel do chatbot" aria-hidden="true">
+    <div class="chat-header">
+      <strong>Chatbot Demonstrativo</strong>
+      <div>
+        <button id="closeChat" class="icon-btn" aria-label="Fechar chatbot">✖</button>
+      </div>
+    </div>
+    <div class="chat-body" id="chatHistory" aria-live="polite">
+      <div class="msg bot">Olá! Sou um protótipo de chatbot. O que você quer saber sobre golfinhos?</div>
+      <div class="msg user">Quero curiosidades rápidas.</div>
+      <div class="msg bot">Você pode explorar a seção “Curiosidades” ou me perguntar algo específico!</div>
+    </div>
+    <form class="chat-input" id="chatForm" aria-label="Entrada de mensagem do chatbot">
+      <input id="chatText" type="text" name="q" placeholder="Digite sua mensagem..." aria-label="Escreva sua mensagem" />
+      <button class="icon-btn" type="submit" aria-label="Enviar mensagem">➤</button>
+    </form>
+  </aside>
+
+  <footer class="wrap" role="contentinfo">
+    <p>&copy; <span id="ano"></span> | Projeto: Golfinho Inteligente — <a href="#topo" id="backToTop">Voltar ao topo</a></p>
+  </footer>
+
+  <script src="script.js"></script>
+
+  <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+  <df-messenger
+    intent="WELCOME"
+    chat-title="ECOBOT"
+    agent-id="6c106d6c-eef7-41db-92b4-5bf82848937e"
+    language-code="pt-br">
+  </df-messenger>
+
+  <!-- Modal da câmera -->
+  <div id="cameraModal" class="modal" aria-hidden="true" style="display:none;">
+    <div class="modal-content">
+      <button id="fecharModal" class="botao-fechar" title="Fechar">❌</button>
+      <h2 class="modal-title">Reconhecimento Facial</h2>
+      <div class="video-wrap">
+        <video id="video" autoplay muted playsinline></video>
+      </div>
+      <div class="controls">
+        <button id="tirarFoto" class="botao-foto" title="Tirar foto">📸</button>
+      </div>
+      <p id="modalStatus" class="modal-status">Aguardando...</p>
+      <canvas id="fotoCanvas" style="display:none;"></canvas>
+    </div>
+  </div>
+
+</body>
+</html>
